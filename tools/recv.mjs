@@ -23,6 +23,9 @@ const MIME = {
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.json': 'application/json',
+  '.wav': 'audio/wav',
+  '.m4a': 'audio/mp4',
+  '.srt': 'text/plain; charset=utf-8',
   '.svg': 'image/svg+xml',
 };
 

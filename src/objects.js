@@ -264,7 +264,13 @@ export function makeShell(scene, materials) {
     // 合拢态只留最外层：三层同心球同时渲染时，内层结构层的青色桁架线会
     // 叠在外层瓦片上连成一张网，破坏"外部看是一颗完整安静的球"。
     // 分层 / 剖切开始后再把内层放出来。
-    const closed = s.explode < 0.02 && s.cut < 0.02;
+    //
+    // 例外：装甲层被显式关掉时（介绍片单独拍收能层 / 结构层），就不能算合拢态，
+    // 否则 collector / truss 会被一起 uFade=0 抹掉，画面只剩一颗恒星 —— 之前
+    // I4「收能层」、I5「结构层」两个镜头全黑就是这个原因。
+    // 三层全开时 armorOn 为 true，原来的"完整安静的球"完全不受影响。
+    const armorOn = s.layerVisible.armor !== false;
+    const closed = s.explode < 0.02 && s.cut < 0.02 && armorOn;
     let maxR = 0;
     layers.forEach((L) => {
       const R = L.cfg.r + s.explode * L.cfg.offset + bulge * L.cfg.r;

@@ -871,3 +871,33 @@ rollup 不报未定义标识符，只能靠真跑一次发现。已按 `CABLE_VE
 
 **验证**：build 通过；八格联系表 `preview/43-全片联系表.png` 逐格复核；
 S1 定帧 `preview/40`、`preview/44`；S2 缆索编织结构回归正常。
+
+### 13.11 介绍片《一颗恒星，三层壳》（已完成）
+
+用同一套 three.js 场景重拍九镜（尺度 → 构想 → 构型 → 收能层 → 结构层 →
+装甲层 → 运输 → 人的尺度 → 运转），27 句微软 Edge 免费神经语音中文配音
+（GitHub 开源客户端 edge-tts，`zh-CN-YunyangNeural`）、烧录中文字幕、
+带 BOM 的 SRT，总长 152.756 秒。脚本与分镜在 `src/cinema/introScript.js`，
+运行时在 `src/cinema/introRuntime.js`，逐句配音与时间轴由 `tools/narrate.mjs`
+生成到 `public/intro/`。
+
+**配音即时间轴**：每句 wav 的真实时长决定字幕 cue 与镜头长度；
+`AudioContext.currentTime` 是唯一时钟，画面 / 字幕 / 音频 / 录制起点全读它。
+
+**关键 bug**：`objects.js` 合拢态只渲染 armor（`uFade=0` 抹掉内两层）。
+介绍片为拍单层关掉 armor 后画面全黑。修法是关掉装甲层时不再算合拢态
+（`closed = ... && armorOn`），三层全开时行为不变。
+
+**导出关键**：必须用本机 Chrome 默认 GPU，不能加 `--use-angle=swiftshader`。
+每帧 `drawImage(webglCanvas)` 烧字幕会强制 ReadPixels，软件渲染下 rAF 掉到
+1fps；`--virtual-time-budget` 又因为不产 rAF 帧 / 音频时钟不兼容而不可用。
+详见 `CINEMATIC_UPGRADE_PLAN.md` 第 21 节。
+
+成片 `out/dyson-intro-remux.mp4`：153.435s / 1920×1080 / 29.98fps /
+H.264 + AAC / 436.6 MB；字幕 `out/dyson-intro.srt`；完整配音轨
+`out/dyson-intro-voice.wav`；成片抽帧联系表 `preview/56-介绍片微软配音成片抽帧.png`。
+验证：`tools/probe-mp4.mjs`、`tools/verify-intro.swift`（音轨 RMS=1434，非静音）。
+
+首版 macOS say / Eddy 的成片归档为 `out/dyson-intro-eddy-remux.mp4`。换声只需
+`INTRO_VOICE=zh-CN-YunjianNeural npm run narrate` 后重录；详见
+`CINEMATIC_UPGRADE_PLAN.md` 第 21.7 节。

@@ -1219,3 +1219,127 @@ S1 的焦点在 2.4（恒星），而地面距离 0.07~0.18。`coc` 的公式是
 
 这一轮的定帧：`preview/40-S1-地面道具.png`、`44-S1-地面道具-细部.png`、
 `43-全片联系表.png`。
+
+---
+
+## 21. 介绍片《一颗恒星，三层壳》：脚本、配音、字幕与成片导出
+
+### 21.1 为什么单独做一条片子
+
+电影分镜（S1–S6，56 秒）是氛围片：镜头语言优先，不解释结构。用户明确表示
+已有截图 / 视频不满意，要**先立尺度，再逐段讲功能**，并且要有配音和字幕。
+所以介绍片不是从电影版剪素材，而是用同一个 three.js 场景**重拍九镜**，
+脚本与分镜全部重写（`src/cinema/introScript.js`）。
+
+九镜：I1 尺度 → I2 构想 → I3 构型 → I4 收能层 → I5 结构层 → I6 装甲层
+→ I7 运输 → I8 人的尺度 → I9 运转，共 27 句。首版用 macOS say（150.483 秒），
+换成微软神经语音后 152.756 秒（见 21.7）—— 镜头顺序与文案一个字没动。
+
+### 21.2 时钟：配音时长是唯一真相
+
+`tools/narrate.mjs` 逐句调**微软 Edge 免费神经语音**（GitHub 开源客户端
+`rany2/edge-tts`，音色 `zh-CN-YunyangNeural`），微软返回 24kHz mono MP3，
+`afconvert` 统一转 22.05kHz / mono / Int16 WAV，再用 `afinfo` 读**每句的真实时长**。
+`public/intro/timeline.json` 保存绝对 start / dur，字幕 cue 与镜头时长都由它派生，
+不做"字数 × 语速"估算。`out/dyson-intro.srt` 带 UTF-8 BOM。
+
+运行时（`src/cinema/introRuntime.js`）用 `AudioContext.currentTime` 作**唯一时钟**：
+27 个 BufferSource 一次排进音频时钟，画面 / 字幕 / 录制起点全部读 `time()`，
+所以音画不会漂移。
+
+### 21.3 视觉链路
+
+WebGL canvas → 2D display canvas（1920×1080）逐帧 drawImage →
+下遮幅黑边烧中文字幕、上黑边放章节标题、画幅底边放进度线 →
+`display.captureStream(30)` 取视频轨、`MediaStreamDestination` 取音轨 →
+`MediaRecorder` 一次编码成带 AAC 音轨的 MP4。全程不引入 ffmpeg / 无头浏览器。
+
+`?intro=1&at=57` 定帧复核（frozen 模式跳过 AudioContext 与解码），
+`?intro=1&rec=30` 录制，`?capw=&caph=` 强制渲染缓冲尺寸。
+
+### 21.4 两轮视觉复核与关键 bug
+
+第一轮九格联系表（`preview/51`）暴露 5 个问题，修正后见 `preview/52`、`53`、`54`：
+
+- **I1 被 2.39 遮幅平切** → 24mm + 更远机位；随后发现真正的问题是 `ease:'out'`
+  在 u=0.44 时插值已到 0.96，15 秒里有 13 秒画面静止 → 改 `inOut` + 58→31，
+  球从占可见高度约四成持续推到八成。
+- **I3 / I9 三层分离读不出来** → 复用电影 S4 验证过的顺孔轴机位与
+  `cut:0.45 / explode:0.75`。
+- **I4 收能层、I5 结构层全黑 / 只剩恒星**：`objects.js` 里
+  `closed = explode<0.02 && cut<0.02`，合拢态只留 armor，`uFade=0` 把
+  collector / truss 一起抹掉；而介绍片为拍单层必须关掉 armor → 什么都不剩。
+  修法：`const armorOn = layerVisible.armor !== false; closed = ... && armorOn`。
+  三层全开时行为不变，"外部看是一颗完整安静的球"不受影响。
+  修好后 I4 是铺满画幅的暖橙蜂窝光伏内壁，I5 是青色桁架杆件近景。
+- **I1 球过小的误判**：联系表是 1920 宽双列布局，预览时被整体缩到 800 宽，
+  目测必须按倍率还原，否则会把 60% 占幅误读成 30%。
+
+### 21.5 导出踩坑（最重要的一条）
+
+**必须用本机 Chrome 默认 GPU，不要加 `--use-angle=swiftshader`。**
+介绍片每帧要 `ctx2d.drawImage(webglCanvas)` 才能烧字幕，这一步强制 `ReadPixels`；
+软件渲染下 GPU stall，headless 真实时间里 rAF 只有 1fps（8 秒 8 帧、画面全黑）。
+改用默认 GPU 后同样 8 秒录出 440 帧、音视频轨齐全。
+
+其它验证过但**不能用于正式导出**的路：
+
+- `--virtual-time-budget`：快进 `performance.now()` 但**不产生 rAF 帧**（`rendered: 0`），
+  且 `AudioContext.currentTime` 走真实硬件时钟，与虚拟时间不兼容；
+- `--disable-frame-rate-limit`：rAF 不限速狂转，3 秒后 GPU 命令队列堵死；
+- 有头 Chrome（窗口在屏幕外或屏幕内）：都被判为不可见，rAF 只有 3~5 帧；
+- `setTimeout` 驱动主循环（备用 `?silent=1`）：同样被 ReadPixels 堵死。
+
+正式命令（端口 4174 / 4175 都指向 `tools/recv.mjs`）：
+
+```sh
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --headless=new --no-sandbox --no-proxy-server --hide-scrollbars \
+  --window-size=1920,1080 --user-data-dir=/tmp/dyson-rec-final \
+  --autoplay-policy=no-user-gesture-required \
+  "http://127.0.0.1:4174/?intro=1&rec=30&capw=1920&caph=1080"
+```
+
+### 21.6 成片与验证
+
+`out/dyson-intro-remux.mp4`：153.435s / 1920×1080 / 29.98fps /
+H.264(avc1) + AAC(mp4a) / 436.6 MB。录制日志 `rendered: 8543`、`film=153.434`、
+46 个分片；`avconvert -p PresetPassthrough` 重封装（分片 MP4 的 mvhd 时长为 0）。
+
+验证工具（全部系统自带，无第三方依赖）：
+
+- `tools/probe-mp4.mjs`：读 MP4 box 判轨道 / 帧率 / 是否分片。注意每个 `trak`
+  必须独立 ctx，否则第二条轨道会继承第一条的 handler，误报"两条 vide、没有 soun"。
+- `tools/verify-intro.swift`：AVFoundation 抽关键帧 + 读音频 PCM 算 RMS。
+  成片实测 `rms=1434 / peak=28240`，确认不是空 AAC 静音轨。
+- `tools/assemble-voice.mjs` / `tools/mux-intro.swift`：
+  离线拼接完整配音轨 + AVFoundation 合成的备用链路，正式导出未走，保留备查。
+
+定帧与联系表 `preview/50` ~ `preview/56`，其中 `preview/56-介绍片微软配音成片抽帧.png`
+是从最终 MP4 抽出的八帧，确认九个镜头无黑帧、字幕确实烧在下黑边、
+片头标题帧无参数面板混入。
+
+### 21.7 换声：从 macOS say 到微软 Edge 神经语音
+
+首版用 macOS 自带 `say -v "Eddy (中文（中国大陆）)" -r 175`，是拼接式语音，
+机械、无韵律，用户明确不满意。**只换音源，画面 / 分镜 / 字幕文案 / 后期链全部不动。**
+
+选型过程：本机 Apple M1 / Python 3.13 / 无 torch；GitHub 与 PyPI 索引可达，
+但 **HuggingFace 与 files.pythonhosted.org 不通**，所以 CosyVoice / ChatTTS /
+IndexTTS 这类要下载 1~3GB 权重 + torch 的本地开源神经模型无法落地。
+Piper / sherpa-onnx 虽能纯 CPU 跑，但中文是 VITS 朴素朗读腔，提升有限。
+最终按用户要求改用**微软免费神经语音接口**（Edge Read Aloud）：
+GitHub 开源客户端 `rany2/edge-tts`（12.5k stars），pip 装到 `.cache/tts-env`
+（清华镜像，`.gitignore` 已排除），无需 API key、无需 Azure 订阅。
+
+可用中文男声实测：`YunjianNeural`(Passion / 低沉解说)、`YunxiNeural`(Lively)、
+`YunxiaNeural`(Cute)、`YunyangNeural`(Professional, Reliable)。
+选 **YunyangNeural**：标准播音腔、沉稳不抢画面，对应首版的"沉稳男声"。
+备选样本 `out/voice-sample-yunjian.mp3`，换声只需改 `tools/narrate.mjs` 的
+`VOICE` 常量或设 `INTRO_VOICE=zh-CN-YunjianNeural`，再跑 `npm run narrate`。
+
+**为什么必须重录而不能只替换音轨**：每句新配音的真实时长变了，而烧录在画面里的
+字幕与镜头切换都按 `timeline.json` 走。只换 MP4 音轨会让字幕与声音错位。
+所以按新时长重跑 narrate（27 句 / 152.756s）→ build → 重录一遍，
+视觉内容 100% 不变，音画同步仍由数据保证。首版 Eddy 成片归档为
+`out/dyson-intro-eddy-remux.mp4`，旧分句音频在 `.cache/tts/audio-eddy/`。

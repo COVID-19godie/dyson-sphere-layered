@@ -21,7 +21,14 @@ import { SourcePass } from './cinema/passes.js';
 import { lensFov } from './cinema/lens.js';
 import { SEQUENCE } from './cinema/sequence.js';
 import { sampleSequence, driveShot, totalDuration } from './cinema/shot.js';
+import { createIntroRuntime } from './cinema/introRuntime.js';
 import './style.css';
+
+// 介绍片模式：复用同一套场景与后期链，只是把「时间驱动画面」换成
+// 「配音时长驱动画面」，并在 2D 合成层上烧字幕。见 cinema/introRuntime.js
+const introMode = new URLSearchParams(location.search).get('intro') === '1';
+let introRT = null;
+let introGround = null;
 
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const ease = (t) => t * t * (3 - 2 * t);
@@ -351,6 +358,25 @@ function updateFilm(now) {
   }
 }
 
+/** 介绍片：用 AudioContext 的时钟采样时间轴，驱动相机 / 状态 / 淡入淡出 */
+function updateIntro() {
+  if (!introRT) { fadeValue = 0; return; }   // 资源没到位时保持黑场，别闪默认视角
+  const s = introRT.sample(introRT.time());
+  const out = driveShot(camera, s.cam, s.u, Math.max(0, s.t), {
+    shake: params.shake,
+    breath: params.breath,
+  });
+  filmFocus = out.focus;
+  for (const k in s.state) if (k in params) params[k] = s.state[k];
+  activeView = s.ground ? 'ground' : 'film';
+  // 只在切镜时切恒星模式，避免每帧重复改 uniform
+  if (s.ground !== introGround) {
+    star.setGroundMode(s.ground);
+    introGround = s.ground;
+  }
+  fadeValue = s.fade;
+}
+
 /* --------------------------------------------------------------- 时间线 */
 
 function updateTimeline(now) {
@@ -394,15 +420,27 @@ const clock = new THREE.Clock();
 let frames = 0;
 let lastT = 0;
 
+// ?silent=1 是备用导出通道：不用 rAF，改由 setTimeout 驱动主循环。
+// 实测本机 headless 下这条路会被每帧 drawImage(webglCanvas) 的 ReadPixels 堵死
+// GPU 队列，**正式导出不要用它**。
+// 正式链路就是普通 rAF + 本机 Chrome 默认 GPU（切勿加 --use-angle=swiftshader）：
+// 软件渲染会把帧率压到 1fps，默认 GPU 下 8 秒实测 440 帧、音视频轨齐全。
+const introRecTimer = introMode && new URLSearchParams(location.search).has('silent');
+
 function frame() {
-  requestAnimationFrame(frame);
+  if (introRecTimer) setTimeout(frame, 0);
+  else requestAnimationFrame(frame);
   const now = performance.now();
   const t = clock.getElapsedTime();
   const dt = Math.min(t - lastT, 0.05);
   lastT = t;
 
-  updateTimeline(now);
-  if (film) updateFilm(now);
+  if (introMode) {
+    updateIntro();
+  } else {
+    updateTimeline(now);
+    if (film) updateFilm(now);
+  }
   updateBadge();
 
   // 动态 near/far；贴地视角离地面只有 0.012，near 要单独压到 0.001
@@ -554,6 +592,9 @@ function frame() {
   // 4) 拷贝 → 体积光叠加 → bloom → 景深 → 调色 → 输出
   composer.render();
 
+  // 介绍片：把 WebGL 画面搬到 2D 合成层，在下遮幅黑边里烧字幕
+  if (introRT) introRT.afterRender();
+
   if (++frames === 2) {
     document.getElementById('loading').classList.add('hidden');
   }
@@ -681,6 +722,29 @@ if (specialView === 'ground') {
   tween = null;
   panel.refresh();
 }
+/* ---- 介绍片模式：?intro=1 ---- */
+if (introMode) {
+  film = true;                 // 复用 film 分支的 focus / uFade / fov 逻辑
+  controls.enabled = false;
+  params.autoRotate = false;
+  params.letterbox = true;
+  fadeValue = 0;
+  document.body.classList.add('cinema');   // 隐藏 HUD / 徽标 / 参数面板
+  for (const id of ['hud', 'badge', 'loading']) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  }
+  createIntroRuntime(canvas).then((rt) => {
+    introRT = rt;
+    document.title = 'INTRO-READY';
+    // ?intro=1&rec=30 自动录一整条带配音和字幕的片子
+    if (q.get('rec')) rt.record();
+  }).catch((err) => {
+    console.error('[intro] 初始化失败', err);
+    document.title = `INTRO-FAILED ${err.message}`;
+  });
+}
+
 // 通用参数覆盖：?p.bloom=0&p.grade=0 —— 定帧对比单项效果时比改代码快得多
 for (const [k, v] of q) {
   if (!k.startsWith('p.')) continue;
@@ -697,7 +761,7 @@ if (q.get('tm') in TONE_MAPS) {
 // ?film=1 连续播放全片；?film=S3 把第 3 个镜头锁在 55% 处定帧；
 // ?film=S4@0.02 锁在 2% 处 —— 用来验证切点前后机位是否连续
 const filmParam = q.get('film');
-if (filmParam) {
+if (filmParam && !introMode) {
   if (filmParam === '1') startFilm('');
   else {
     const [id, at] = filmParam.toUpperCase().split('@');
@@ -789,6 +853,6 @@ function startRecording(streamFps) {
 }
 
 const recParam = q.get('rec');
-if (recParam) startRecording(parseInt(recParam, 10) || 30);
+if (recParam && !introMode) startRecording(parseInt(recParam, 10) || 30);
 
 frame();

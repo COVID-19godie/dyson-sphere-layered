@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
-    "preview": "vite preview --host 127.0.0.1"
+    "preview": "vite preview --host 127.0.0.1",
+    "narrate": "node tools/narrate.mjs",
+    "voice": "node tools/assemble-voice.mjs"
   },
   "dependencies": {
     "three": "^0.169.0",

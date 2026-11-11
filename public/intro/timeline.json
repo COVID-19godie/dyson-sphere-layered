@@ -1,0 +1,259 @@
+{
+  "title": "一颗恒星，三层壳",
+  "subtitle": "分层实心壳戴森球 · 结构与功能",
+  "fps": 30,
+  "total": 152.756,
+  "pacing": {
+    "head": 1.4,
+    "tail": 2.4,
+    "gap": 0.34,
+    "shotPad": 0.55,
+    "fadeIn": 1.2,
+    "fadeOut": 2
+  },
+  "shots": [
+    {
+      "id": "I1",
+      "chapter": "一 · 尺度",
+      "title": "把一颗恒星整个包起来",
+      "start": 1.4,
+      "dur": 15.22,
+      "lines": [
+        {
+          "text": "如果要把一颗恒星的全部输出都接住，工程的尺度就不再以公里计算。",
+          "audio": "/intro/audio/I1_00.wav",
+          "start": 1.95,
+          "dur": 6.192
+        },
+        {
+          "text": "它必须以恒星半径为单位。",
+          "audio": "/intro/audio/I1_01.wav",
+          "start": 8.482,
+          "dur": 2.856
+        },
+        {
+          "text": "眼前这个球，半径是中心那颗恒星的八点七倍。",
+          "audio": "/intro/audio/I1_02.wav",
+          "start": 11.678,
+          "dur": 4.392
+        }
+      ]
+    },
+    {
+      "id": "I2",
+      "chapter": "二 · 构想",
+      "title": "能量，而不是阳光",
+      "start": 16.62,
+      "dur": 18.316,
+      "lines": [
+        {
+          "text": "一九六零年，弗里曼·戴森提出一个判据：足够先进的文明，",
+          "audio": "/intro/audio/I2_00.wav",
+          "start": 17.17,
+          "dur": 5.424
+        },
+        {
+          "text": "不会只在行星表面等阳光，而会环绕恒星建造收集结构。",
+          "audio": "/intro/audio/I2_01.wav",
+          "start": 22.934,
+          "dur": 5.592
+        },
+        {
+          "text": "剖开外壳，恒星仍在正中——它没有被遮蔽，而是被整个包住。",
+          "audio": "/intro/audio/I2_02.wav",
+          "start": 28.866,
+          "dur": 5.52
+        }
+      ]
+    },
+    {
+      "id": "I3",
+      "chapter": "三 · 构型",
+      "title": "接近闭合的实心壳",
+      "start": 34.936,
+      "dur": 16.324,
+      "lines": [
+        {
+          "text": "这里采用的是接近闭合的实心壳，不是散开的卫星群。",
+          "audio": "/intro/audio/I3_00.wav",
+          "start": 35.486,
+          "dur": 4.872
+        },
+        {
+          "text": "它由三层同心壳体组成：收能层、结构层、装甲层。",
+          "audio": "/intro/audio/I3_01.wav",
+          "start": 40.698,
+          "dur": 5.352
+        },
+        {
+          "text": "让它们分开，才看得清每一层各自在做什么。",
+          "audio": "/intro/audio/I3_02.wav",
+          "start": 46.39,
+          "dur": 4.32
+        }
+      ]
+    },
+    {
+      "id": "I4",
+      "chapter": "四 · 收能层",
+      "title": "朝内的那一整面",
+      "start": 51.26,
+      "dur": 14.812,
+      "lines": [
+        {
+          "text": "最内层是收能层，半径七点四。",
+          "audio": "/intro/audio/I4_00.wav",
+          "start": 51.81,
+          "dur": 3.264
+        },
+        {
+          "text": "朝向恒星的那一整面铺满光伏阵列，把辐射直接变成电力。",
+          "audio": "/intro/audio/I4_01.wav",
+          "start": 55.414,
+          "dur": 5.832
+        },
+        {
+          "text": "接缝里流动的光，是正在被输运走的能量。",
+          "audio": "/intro/audio/I4_02.wav",
+          "start": 61.586,
+          "dur": 3.936
+        }
+      ]
+    },
+    {
+      "id": "I5",
+      "chapter": "五 · 结构层",
+      "title": "把三层锁成一个整体",
+      "start": 66.072,
+      "dur": 16.252,
+      "lines": [
+        {
+          "text": "中间是结构层，半径八。它是一整套桁架，不是一层皮。",
+          "audio": "/intro/audio/I5_00.wav",
+          "start": 66.622,
+          "dur": 5.64
+        },
+        {
+          "text": "壳体的应力、散热回路、层间输运，都从这一层走。",
+          "audio": "/intro/audio/I5_01.wav",
+          "start": 72.602,
+          "dur": 4.68
+        },
+        {
+          "text": "没有它，另外两层只是两片各自飘着的薄壳。",
+          "audio": "/intro/audio/I5_02.wav",
+          "start": 77.622,
+          "dur": 4.152
+        }
+      ]
+    },
+    {
+      "id": "I6",
+      "chapter": "六 · 装甲层",
+      "title": "朝向真空的一面",
+      "start": 82.324,
+      "dur": 17.716,
+      "lines": [
+        {
+          "text": "最外层是装甲层，半径八点七。它面对真空、微陨石和恒星风。",
+          "audio": "/intro/audio/I6_00.wav",
+          "start": 82.874,
+          "dur": 6.648
+        },
+        {
+          "text": "外表面的瓦片阵列负责防护与辐射屏蔽，",
+          "audio": "/intro/audio/I6_01.wav",
+          "start": 89.862,
+          "dur": 3.984
+        },
+        {
+          "text": "而点缀其上的工程灯，是这层壳体仍在被维护的证据。",
+          "audio": "/intro/audio/I6_02.wav",
+          "start": 94.186,
+          "dur": 5.304
+        }
+      ]
+    },
+    {
+      "id": "I7",
+      "chapter": "七 · 运输",
+      "title": "地表到轨道的那条线",
+      "start": 100.04,
+      "dur": 15.604,
+      "lines": [
+        {
+          "text": "行星与轨道之间，靠太空电梯连接。",
+          "audio": "/intro/audio/I7_00.wav",
+          "start": 100.59,
+          "dur": 3.624
+        },
+        {
+          "text": "编织缆索、同步站点和往复的攀爬舱，构成一条连续的供应链。",
+          "audio": "/intro/audio/I7_01.wav",
+          "start": 104.554,
+          "dur": 5.568
+        },
+        {
+          "text": "巨构不是孤立停在太空里的，它得有东西不断上去。",
+          "audio": "/intro/audio/I7_02.wav",
+          "start": 110.462,
+          "dur": 4.632
+        }
+      ]
+    },
+    {
+      "id": "I8",
+      "chapter": "八 · 人的尺度",
+      "title": "从地表看上去",
+      "start": 115.644,
+      "dur": 10.776,
+      "lines": [
+        {
+          "text": "而从地表看，这一切只是地平线上的一道光。",
+          "audio": "/intro/audio/I8_00.wav",
+          "start": 116.194,
+          "dur": 4.248
+        },
+        {
+          "text": "岩石、陨坑和桅杆，是整个巨构里唯一属于人的尺度。",
+          "audio": "/intro/audio/I8_01.wav",
+          "start": 120.782,
+          "dur": 5.088
+        }
+      ]
+    },
+    {
+      "id": "I9",
+      "chapter": "九 · 运转",
+      "title": "它为什么不一起转",
+      "start": 126.42,
+      "dur": 23.936,
+      "lines": [
+        {
+          "text": "还有一件容易被忽略的事：刚体壳不会像行星那样整体自转。",
+          "audio": "/intro/audio/I9_00.wav",
+          "start": 126.97,
+          "dur": 5.52
+        },
+        {
+          "text": "球壳对内部不产生净引力，偏了也没有回复力，转起来只会失稳。",
+          "audio": "/intro/audio/I9_01.wav",
+          "start": 132.83,
+          "dur": 5.736
+        },
+        {
+          "text": "所以三层以不同速率反向旋转，用角动量彼此抵消。",
+          "audio": "/intro/audio/I9_02.wav",
+          "start": 138.906,
+          "dur": 5.424
+        },
+        {
+          "text": "这不是一个一次建成的物件，而是一组必须持续运转的系统。",
+          "audio": "/intro/audio/I9_03.wav",
+          "start": 144.67,
+          "dur": 5.136
+        }
+      ]
+    }
+  ]
+}

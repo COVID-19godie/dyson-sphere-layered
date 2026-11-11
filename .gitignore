@@ -11,6 +11,13 @@ out/
 # 工作区记忆（含本地调试笔记，不进仓库）
 .workbuddy/
 
+# TTS 中间产物（aiff 原文件），成品 wav 在 public/intro/audio/
+.cache/
+
+# 逐镜调参用的临时定帧 / 联系表网页（下划线开头）。
+# 编号的 preview/NN-*.png 是正式复核图，保留进仓库。
+preview/_*
+
 # macOS / 编辑器
 .DS_Store
 *.swp
