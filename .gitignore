@@ -1,0 +1,23 @@
+# 依赖与构建产物
+node_modules/
+dist/
+
+# 成片与本地导出的视频：4 个 mp4 共 ~570MB，单文件 >100MB 会被 GitHub 拒绝。
+# 成片由 ?rec=30 + tools/recv.mjs 在本地生成，或单独走 Release / Git LFS。
+out/
+*.mp4
+*.webm
+
+# 工作区记忆（含本地调试笔记，不进仓库）
+.workbuddy/
+
+# macOS / 编辑器
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# 环境变量与密钥
+.env
+.env.*
+*.pem

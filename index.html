@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>戴森球 · 分层结构原型</title>
+</head>
+<body>
+  <canvas id="scene"></canvas>
+
+  <header id="hud">
+    <div class="hud-title">戴森球 / <span>DYSON SHELL</span></div>
+    <div class="hud-sub">三层同心壳层 · 合拢 / 分层 / 剖切</div>
+    <div class="hud-hint">拖拽旋转 · 滚轮缩放 · 右侧面板调参</div>
+  </header>
+
+  <div id="badge">
+    <span class="dot"></span>
+    <span id="badge-text">合拢态 · 完整球</span>
+  </div>
+
+  <div id="loading"><div class="l-inner">正在编译着色器…</div></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
